@@ -1,6 +1,7 @@
 import { walk } from 'estree-walker'
 import { parse } from 'acorn'
 import MagicString from 'magic-string'
+import { attachScopes, createFilter } from 'rollup-pluginutils';
 
 const INSERTION = 'var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }'
 
@@ -28,10 +29,15 @@ function optimizeArguments (options) {
 
       const magicString = new MagicString(code)
 
-      let lastFunction
+      let scope = attachScopes(ast, 'scope')
 
       walk(ast, {
         enter (node) {
+          console.log('enter', node, parent)
+          if (node.scope) {
+            console.log(node)
+            scope = node.scope
+          }
           if (sourceMap) {
             magicString.addSourcemapLocation(node.start)
             magicString.addSourcemapLocation(node.end)
@@ -39,16 +45,19 @@ function optimizeArguments (options) {
 
           if (node.type === 'Identifier' && node.name === 'arguments') {
             magicString.overwrite(node.start, node.end, '$_args')
-            if (lastFunction) {
+            console.log('writing!')
+            /*if (lastFunction) {
               let whitespace = magicString.slice(lastFunction.body.start + 1, lastFunction.body.body[0].start)
               magicString.insertLeft(lastFunction.body.start + 1, whitespace + INSERTION)
               lastFunction = null
-            }
-          } else if (node.type === 'FunctionDeclaration') {
-            lastFunction = node
+            }*/
           }
         },
-        leave (node) {
+        leave (node, parent) {
+          console.log('leave', node, parent)
+          if (node.scope) {
+            scope = scope.parent
+          }
         }
       })
 

@@ -26,7 +26,8 @@
   "dependencies": {
     "acorn": "^4.0.3",
     "estree-walker": "^0.2.0",
-    "magic-string": "^0.16.0"
+    "magic-string": "^0.16.0",
+    "rollup-pluginutils": "^2.0.1"
   },
   "keywords": [
     "rollup",
