@@ -1,0 +1,54 @@
+{
+  "name": "rollup-plugin-optimize-arguments",
+  "description": "Rollup plugin to avoid leaking `arguments` object",
+  "version": "0.1.0",
+  "devDependencies": {
+    "mocha": "^3.0.2",
+    "rollup": "^0.36.0",
+    "rollup-plugin-buble": "^0.14.0",
+    "standard": "^8.6.0"
+  },
+  "main": "dist/rollup-plugin-inline-typeof.cjs.js",
+  "jsnext:main": "dist/rollup-plugin-inline-typeof.es.js",
+  "scripts": {
+    "test": "standard && mocha",
+    "standard": "standard",
+    "pretest": "npm run build",
+    "build": "rollup -c -f cjs -o dist/rollup-plugin-inline-typeof.cjs.js && rollup -c -f es -o dist/rollup-plugin-inline-typeof.es.js",
+    "prebuild": "rm -rf dist/*",
+    "prepublish": "npm test"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "acorn": "^4.0.3",
+    "estree-walker": "^0.2.0",
+    "magic-string": "^0.16.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nolanlawson/rollup-plugin-inline-typeof.git"
+  },
+  "keywords": [
+    "rollup",
+    "rollup-plugin",
+    "es2015",
+    "arguments",
+    "optimize"
+  ],
+  "author": "Nolan Lawson <nolan@nolanlawson.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/nolanlawson/rollup-plugin-inline-typeof/issues"
+  },
+  "homepage": "https://github.com/nolanlawson/rollup-plugin-inline-typeof#readme",
+  "standard": {
+    "ignore": [
+      "dist/**",
+      "test/samples/**"
+    ]
+  }
+}
