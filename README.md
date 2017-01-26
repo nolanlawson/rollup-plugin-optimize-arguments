@@ -31,9 +31,7 @@ Example input:
 
 ```js
 function foobar() {
-  for (var i = 0; i < arguments.length; i++) {
-    console.log(arguments[i]);
-  }
+  console.log(arguments[arguments.length - 1]);
   return arguments;
 }
 ```
@@ -43,9 +41,7 @@ Output:
 ```js
 function foobar() {
   var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
-  for (var i = 0; i < $_args.length; i++) {
-    console.log($_args[i]);
-  }
+  console.log($_args[$_args.length - 1]);
   return $_args;
 }
 ```
