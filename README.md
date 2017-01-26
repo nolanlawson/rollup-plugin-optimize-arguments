@@ -1,28 +1,26 @@
-rollup-plugin-inline-typeof [![Build Status](https://travis-ci.org/nolanlawson/rollup-plugin-inline-typeof.svg?branch=master)](https://travis-ci.org/nolanlawson/rollup-plugin-inline-typeof)
+rollup-plugin-optimize-arguments [![Build Status](https://travis-ci.org/nolanlawson/rollup-plugin-optimize-arguments.svg?branch=master)](https://travis-ci.org/nolanlawson/rollup-plugin-optimize-arguments)
 =====
 
-Rollup plugin to scan for `typeof` invocations (and similar expressions like `foo === undefined`) and replace
-them with functions so that JavaScript engines can inline them.
+Rollup plugin to analyze for usage of `arguments` and automatically convert it to an array, to avoid leaking the `arguments` object (which is an [optimization killer](https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments)).
 
-This can reduce bundle size and speed up JavaScript execution, as inspired by
- [InfernoJS](http://survivejs.com/blog/inferno-interview/). See [Why](#why) for more details.
+Basically, you can just use `arguments` as if it were a normal array and this plugin will take care of the rest.
 
 ## Installation
 
 ```bash
-npm install --save-dev rollup-plugin-inline-typeof
+npm install --save-dev rollup-plugin-optimize-arguments
 ```
 
 ## Usage
 
 ```js
 var rollup = require('rollup').rollup;
-var inlineTypeof = require('rollup-plugin-inline-typeof');
+var optimizeArguments = require('rollup-plugin-optimize-arguments');
 
 rollup({
   entry: 'main.js',
   plugins: [
-    inlineTypeof()
+    optimizeArguments()
   ]
 }).then(...)
 ```
@@ -32,74 +30,75 @@ rollup({
 Example input:
 
 ```js
-if (typeof foo === 'undefined') {
-  console.log('yolo');
+function foobar() {
+  for (var i = 0; i < arguments.length; i++) {
+    console.log(arguments[i]);
+  }
+  return arguments;
 }
 ```
 
 Output:
 
 ```js
-function isUndefined (x) { return typeof x === "undefined" }
-
-if (isUndefined(foo)) {
-  console.log('yolo');
+function foobar() {
+  var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
+  for (var i = 0; i < $_args.length; i++) {
+    console.log($_args[i]);
+  }
+  return $_args;
 }
 ```
 
-Or we can get fancier:
+Or even nested:
 
 ```js
-if (typeof foo === 'undefined' && foo === null) {
-  console.log('yolo');
+function foobar() {
+  console.log(arguments);
+  (function foobaz() {
+    console.log(arguments);
+    (() => {
+      console.log(arguments);
+      var toto = function () {
+        console.log(arguments);
+        !function() {
+          console.log(arguments);
+        }()
+      }
+      toto();
+    })();
+  })();
 }
-
-if (typeof foo === 'boolean' || typeof foo !== 'function' || typeof foo !== 'undefined') {
-  console.log('haha')
-}
+foobar();
 ```
 
 Output:
 
 ```js
-function isUndefined (x) { return typeof x === "undefined" }
-function isFunction (x) { return typeof x === "function" }
-function isBoolean (x) { return typeof x === "boolean" }
-function isNull (x) { return x === null }
-
-if (isUndefined(foo) && isNull(foo)) {
-  console.log('yolo');
+function foobar() {
+  var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
+  console.log($_args);
+  (function foobaz() {
+    var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
+    console.log($_args);
+    (() => {
+      console.log($_args);
+      var toto = function () {
+        var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
+        console.log($_args);
+        !function() {
+          var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
+          console.log($_args);
+        }();
+      };
+      toto();
+    })();
+  })();
 }
-
-if (isBoolean(foo) || !isFunction(foo) || !isUndefined(foo)) {
-  console.log('haha');
-}
+foobar();
 ```
 
-## Why?
-
-I was inspired by Dominic Gannaway's [interview about InfernoJS](http://survivejs.com/blog/inferno-interview/) explaining some
-of the optimizations they used. This one caught my eye:
-
-> Inferno prefers the usage of helper functions that all get inlined by a JIT compiler – for example, rather than
-> doing `foo === null`, doing `isNull(foo)`.
-> We found that this really helped improve bundle size, and in some cases it also improved JIT performance.
-
-You can see how Inferno does this using [this utlity module](https://github.com/trueadm/inferno/blob/adcd7a1bd98590224afe0b51c96be0995135477a/src/shared.ts). However, replacing all `typeof` invocations
-in a large codebase is time-consuming, and results in harder-to-maintain code. Wouldn't it be nice if we could automate this
-at build time?
-
-That's exactly what this plugin does. For each category of `typeof` (including `foo === null` and `foo === undefined`), we define
-a Rollup module (e.g. `isNull()`, `isUndefined()`), and replace each invocation of `typeof` with a function call.
-
-Since Rollup handles
-all module definitions, we can guarantee that there will only be one instance of each function for the entire bundle, and we can also guarantee that
-collisions will be intelligently handled. (Rollup will replace the function names with `isNull$1()` etc. in the case of collisions.)
-
-## Notes
-
-In your list of `plugins`, you should probably put `inlineTypeof()` first because it may conflict with other plugins
-(such as `rollup-plugin-commonjs`).
+(Arrow functions do not create their own scope and thus inherit their parent's `arguments`.)
 
 ## Credits
 
