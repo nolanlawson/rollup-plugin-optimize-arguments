@@ -24,6 +24,10 @@ function isFunction (node) {
   return false
 }
 
+function getLeadingWhitespace (str) {
+  return str.match(/\s*/)[0]
+}
+
 function optimizeArguments (options) {
   options = options || {}
   const sourceMap = options.sourceMap !== false
@@ -37,6 +41,7 @@ function optimizeArguments (options) {
 
       const magicString = new MagicString(code)
 
+      // keep track of each BlockStatement so we know what scope we're in
       let blocks = []
 
       walk(ast, {
@@ -50,7 +55,9 @@ function optimizeArguments (options) {
             magicString.overwrite(node.start, node.end, '$_args')
             let lastBlock = blocks[blocks.length - 1]
             if (!lastBlock.__written) {
-              let whitespace = magicString.slice(lastBlock.start + 1, lastBlock.body[0].start)
+              // preserve whitespace so indenting looks correct
+              let whitespace = getLeadingWhitespace(
+                magicString.slice(lastBlock.start + 1, lastBlock.body[0].start).toString())
               magicString.insertLeft(lastBlock.start + 1, whitespace + INSERTION)
               lastBlock.__written = true
             }
