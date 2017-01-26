@@ -4,3 +4,4 @@ function foobar() {
   }
   return arguments;
 }
+foobar()

@@ -5,3 +5,4 @@ function foobar() {
   }
   return $_args;
 }
+foobar();
