@@ -19,7 +19,6 @@
     "prepublish": "npm test"
   },
   "files": [
-    "src",
     "dist",
     "README.md"
   ],
