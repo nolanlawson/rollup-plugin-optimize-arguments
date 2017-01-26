@@ -1,15 +1,20 @@
 function foobar() {
-  console.log(arguments);
+  var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
+  console.log($_args);
   (function foobaz() {
-    console.log(arguments);
+    var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
+    console.log($_args);
     (function () {
-      console.log(arguments);
+      var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
+      console.log($_args);
       var toto = function () {
-        console.log(arguments);
+        var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
+        console.log($_args);
         !function() {
-          console.log(arguments);
-        }()
-      }
+          var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
+          console.log($_args);
+        }();
+      };
       toto();
     })();
   })();
