@@ -8,13 +8,13 @@
     "rollup-plugin-buble": "^0.14.0",
     "standard": "^8.6.0"
   },
-  "main": "dist/rollup-plugin-inline-typeof.cjs.js",
-  "jsnext:main": "dist/rollup-plugin-inline-typeof.es.js",
+  "main": "dist/rollup-plugin-optimize-arguments.cjs.js",
+  "jsnext:main": "dist/rollup-plugin-optimize-arguments.es.js",
   "scripts": {
     "test": "standard && mocha",
     "standard": "standard",
     "pretest": "npm run build",
-    "build": "rollup -c -f cjs -o dist/rollup-plugin-inline-typeof.cjs.js && rollup -c -f es -o dist/rollup-plugin-inline-typeof.es.js",
+    "build": "rollup -c -f cjs -o dist/rollup-plugin-optimize-arguments.cjs.js && rollup -c -f es -o dist/rollup-plugin-optimize-arguments.es.js",
     "prebuild": "rm -rf dist/*",
     "prepublish": "npm test"
   },
@@ -28,10 +28,6 @@
     "estree-walker": "^0.2.0",
     "magic-string": "^0.16.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nolanlawson/rollup-plugin-inline-typeof.git"
-  },
   "keywords": [
     "rollup",
     "rollup-plugin",
@@ -41,14 +37,18 @@
   ],
   "author": "Nolan Lawson <nolan@nolanlawson.com>",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/nolanlawson/rollup-plugin-inline-typeof/issues"
-  },
-  "homepage": "https://github.com/nolanlawson/rollup-plugin-inline-typeof#readme",
   "standard": {
     "ignore": [
       "dist/**",
       "test/samples/**"
     ]
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nolanlawson/rollup-plugin-optimize-arguments.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nolanlawson/rollup-plugin-optimize-arguments/issues"
+  },
+  "homepage": "https://github.com/nolanlawson/rollup-plugin-optimize-arguments#readme"
 }
