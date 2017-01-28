@@ -31,7 +31,6 @@ Example input:
 
 ```js
 function foobar() {
-  console.log(arguments[arguments.length - 1]);
   return arguments;
 }
 ```
@@ -41,7 +40,6 @@ Output:
 ```js
 function foobar() {
   var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
-  console.log($_args[$_args.length - 1]);
   return $_args;
 }
 ```
@@ -65,7 +63,6 @@ function foobar() {
     })();
   })();
 }
-foobar();
 ```
 
 Output:
@@ -91,10 +88,19 @@ function foobar() {
     })();
   })();
 }
-foobar();
 ```
 
 (Arrow functions do not create their own scope and thus inherit their parent's `arguments`.)
+
+It also intelligently avoids creating unnecessary `$_args` objects in cases where usage is safe:
+
+```js
+function foobar() {
+  for (var i = 0; i < arguments.length; i++) {
+    console.log(arguments[i]);
+  }
+}
+```
 
 ## Credits
 
