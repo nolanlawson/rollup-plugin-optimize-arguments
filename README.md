@@ -92,7 +92,7 @@ function foobar() {
 
 (Arrow functions do not create their own scope and thus inherit their parent's `arguments`.)
 
-It also intelligently avoids creating unnecessary `$_args` objects in cases where usage is safe:
+This plugin also intelligently avoids creating unnecessary `$_args` objects in cases where usage is safe:
 
 ```js
 function foobar() {
