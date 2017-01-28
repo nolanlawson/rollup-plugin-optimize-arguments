@@ -7,7 +7,7 @@ process.chdir(__dirname)
 
 /* global describe,it */
 
-describe('rollup-plugin-inline-typeof', function () {
+describe('rollup-plugin-optimize-arguments', function () {
   var tests = fs.readdirSync('samples')
 
   tests.forEach(function (testName) {
@@ -21,7 +21,7 @@ describe('rollup-plugin-inline-typeof', function () {
         var generated = bundle.generate()
         var code = generated.code
         var expected = fs.readFileSync(`samples/${testName}/expected.js`, 'utf8')
-        assert.equal(code, expected, generated.code)
+        assert.equal(code.replace(/\s*$/, ''), expected.replace(/\s*$/, ''), generated.code)
       })
     })
   })

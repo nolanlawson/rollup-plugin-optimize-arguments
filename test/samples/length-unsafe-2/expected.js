@@ -1,6 +1,8 @@
 function foobar() {
   var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
-  console.log($_args[arguments.length - 1]);
+  var len = arguments.length;
+  console.log(len);
   return $_args;
 }
-foobar();
+
+export default foobar;

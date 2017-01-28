@@ -7,7 +7,7 @@ function foobar() {
      * comment
      * for you */
     // hope you enjoy my comments
-  for (var i = 0; i < $_args.length; i++) {
+  for (var i = 0; i < arguments.length; i++) {
     console.log($_args[i]);
   }
   return $_args;

@@ -1,12 +1,12 @@
 function foobar() {
   var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }
-  for (var i = 0; i < $_args.length; i++) {
+  for (var i = 0; i < arguments.length; i++) {
     console.log($_args[i]);
   }
   if (whatever) {
     console.log($_args);
   } else {
-    console.log($_args.length);
+    console.log(arguments.length);
   }
   return $_args;
 }

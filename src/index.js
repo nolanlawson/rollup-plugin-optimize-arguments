@@ -52,14 +52,19 @@ function optimizeArguments (options) {
           }
 
           if (node.type === 'Identifier' && node.name === 'arguments') {
-            magicString.overwrite(node.start, node.end, '$_args')
-            let lastBlock = blocks[blocks.length - 1]
-            if (!lastBlock.__written) {
-              // preserve whitespace so indenting looks correct
-              let whitespace = getLeadingWhitespace(
-                magicString.slice(lastBlock.start + 1, lastBlock.body[0].start).toString())
-              magicString.insertLeft(lastBlock.start + 1, whitespace + INSERTION)
-              lastBlock.__written = true
+            let safeArgumentsLengthCall = parent.type === 'MemberExpression' &&
+              parent.property.type === 'Identifier' &&
+              parent.property.name === 'length'
+            if (!safeArgumentsLengthCall) {
+              magicString.overwrite(node.start, node.end, '$_args')
+              let lastBlock = blocks[blocks.length - 1]
+              if (!lastBlock.__written) {
+                // preserve whitespace so indenting looks correct
+                let whitespace = getLeadingWhitespace(
+                  magicString.slice(lastBlock.start + 1, lastBlock.body[0].start).toString())
+                magicString.insertLeft(lastBlock.start + 1, whitespace + INSERTION)
+                lastBlock.__written = true
+              }
             }
           } else if (node.type === 'BlockStatement' && isFunction(parent)) {
             blocks.push(node)
