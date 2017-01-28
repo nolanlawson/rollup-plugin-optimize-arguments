@@ -2,7 +2,8 @@ import { walk } from 'estree-walker'
 import { parse } from 'acorn'
 import MagicString from 'magic-string'
 
-const INSERTION = 'var $_len = arguments.length, $_args = new Array($_len); while ($_len--) { $_args[$_len] = arguments[$_len]; }'
+const INSERTION = 'var $_len = arguments.length, $_args = new Array($_len); ' +
+  'while ($_len--) { $_args[$_len] = arguments[$_len]; }'
 
 function tryParse (code, id) {
   try {
@@ -11,7 +12,8 @@ function tryParse (code, id) {
       sourceType: 'module'
     })
   } catch (err) {
-    console.warn(`rollup-plugin-optimize-arguments: failed to parse ${id}. Consider restricting the plugin to particular files via options.include`)
+    console.warn(`rollup-plugin-optimize-arguments: failed to parse ${id}. 
+    Consider restricting the plugin to particular files via options.include`)
   }
 }
 
@@ -22,6 +24,10 @@ function isFunction (node) {
       return true
   }
   return false
+}
+
+function isArrowFunction (node) {
+  return node.type === 'ArrowFunctionExpression'
 }
 
 function getLeadingWhitespace (str) {
@@ -42,7 +48,8 @@ function optimizeArguments (options) {
       const magicString = new MagicString(code)
 
       // keep track of each BlockStatement so we know what scope we're in
-      let blocks = []
+      let funcBlocks = []
+      let funcAndArrowBlocks = []
 
       walk(ast, {
         enter (node, parent) {
@@ -52,27 +59,41 @@ function optimizeArguments (options) {
           }
 
           if (node.type === 'Identifier' && node.name === 'arguments') {
-            let safeArgumentsLengthCall = parent.type === 'MemberExpression' &&
-              parent.property.type === 'Identifier' &&
-              parent.property.name === 'length'
-            if (!safeArgumentsLengthCall) {
+            let lastFuncBlock = funcBlocks[funcBlocks.length - 1]
+            let lastBlock = funcAndArrowBlocks[funcAndArrowBlocks.length - 1]
+            // arguments.length, arguments[i], etc. are okay
+            // things like arguments.length are not okay for array
+            // functions, because that means we are leaking via the closure
+            if (parent.type !== 'MemberExpression' ||
+                isArrowFunction(lastBlock.parent)) {
               magicString.overwrite(node.start, node.end, '$_args')
-              let lastBlock = blocks[blocks.length - 1]
-              if (!lastBlock.__written) {
+              if (!lastFuncBlock.written) {
                 // preserve whitespace so indenting looks correct
                 let whitespace = getLeadingWhitespace(
-                  magicString.slice(lastBlock.start + 1, lastBlock.body[0].start).toString())
-                magicString.insertLeft(lastBlock.start + 1, whitespace + INSERTION)
-                lastBlock.__written = true
+                  magicString.slice(lastFuncBlock.node.start + 1,
+                    lastFuncBlock.node.body[0].start).toString())
+                magicString.insertLeft(lastFuncBlock.node.start + 1,
+                  whitespace + INSERTION)
+                lastFuncBlock.written = true
               }
             }
-          } else if (node.type === 'BlockStatement' && isFunction(parent)) {
-            blocks.push(node)
+          } else if (node.type === 'BlockStatement') {
+            if (isFunction(parent)) {
+              funcBlocks.push({ node, parent })
+              funcAndArrowBlocks.push({ node, parent })
+            } else if (isArrowFunction(parent)) {
+              funcAndArrowBlocks.push({ node, parent })
+            }
           }
         },
         leave (node, parent) {
-          if (node.type === 'BlockStatement' && isFunction(parent)) {
-            blocks.pop()
+          if (node.type === 'BlockStatement') {
+            if (isFunction(parent)) {
+              funcBlocks.pop()
+              funcAndArrowBlocks.pop()
+            } else if (isArrowFunction(parent)) {
+              funcAndArrowBlocks.pop()
+            }
           }
         }
       })

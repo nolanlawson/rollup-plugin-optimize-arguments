@@ -3,9 +3,11 @@ function foobar() {
   for (var i = 0; i < arguments.length; i++) {
     console.log(arguments[i]);
   }
-  {
-    console.log($_args);
-  }
-  return $_args;
+  console.log(arguments['length']);
+  var args = $_args;
+  return function () {
+    return args[i];
+  };
 }
-foobar();
+
+export default foobar;
