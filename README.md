@@ -102,6 +102,12 @@ function foobar() {
 }
 ```
 
+Usage is considered "safe" when the following conditions apply:
+
+- It's only accessing a property of `arguments`, e.g. `arguments.length` or `arguments[i]`
+- It's not within an arrow function (which may leak `arguments` via the closure)
+- It's not calling a property of the `arguments`, e.g. `arguments.toString()` (although why would you do that? :wink:)
+
 ## Credits
 
 Thanks to Rich Harris for [rollup-plugin-inject](https://github.com/rollup/rollup-plugin-inject) and Alex Lur for [rollup-plugin-ignore](https://github.com/alexlur/rollup-plugin-ignore) which I based this codebase off of.
